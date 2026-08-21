@@ -1,7 +1,4 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TalkNMe — Real Conversations. Real Connections.</title>
-<style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TalkNMe — Real Conversations. Real Connections.</title><style>
 :root{--ink:#17202a;--muted:#68717a;--pink:#c85b7a;--purple:#9d3fbd;--soft:#fff7f9;--line:#ece8e5}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink)}
 nav{height:72px;display:flex;justify-content:space-between;align-items:center;padding:0 5%;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:5}
@@ -14,17 +11,20 @@ h1{font-size:clamp(44px,6vw,70px);line-height:1;letter-spacing:-3px;margin:18px 
 .actions{display:flex;gap:12px;margin-top:24px}.trust{display:flex;gap:24px;color:var(--muted);font-size:13px;margin-top:20px}
 section{padding:55px 5%;max-width:1300px;margin:auto}h2{font-size:34px;margin:0 0 8px}.lead{color:var(--muted);margin-bottom:28px}
 .profiles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 8px 25px #0000000d}
-.card>img{width:100%;height:245px;object-fit:cover;object-position:center;display:block;background:#f4e9ee;image-rendering:auto}.body{padding:17px}
+.card>img{width:100%;height:245px;object-fit:cover;display:block;background:#f4e9ee}.body{padding:17px}
 .name{font-weight:900;font-size:19px;display:flex;justify-content:space-between}.name span{font-size:10px;color:#16834a}
 .body p{font-size:13px;color:var(--muted);line-height:1.45;min-height:38px}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
 .tags b{font-size:11px;background:#f4f2f0;color:#626a71;border-radius:20px;padding:6px 9px}.row{display:flex;justify-content:space-between;align-items:center}em{font-style:normal;color:#9d405e;font-size:12px}
 .card button{width:100%;margin-top:12px}.pricing,.reviews{background:var(--soft)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 .box{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}.box p{color:var(--muted);font-size:13px;line-height:1.5}.price{font-size:22px;font-weight:900;color:#9d405e}.center{text-align:center}
 .footer{padding:25px 5%;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#777;font-size:12px}
-.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;z-index:10;padding:20px}.modalbox{background:#fff;padding:25px;border-radius:20px;max-width:400px;width:100%}.modalbox input{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;margin:12px 0}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;z-index:10;padding:20px}
+.modalbox{background:#fff;padding:25px;border-radius:20px;max-width:400px;width:100%;box-shadow:0 20px 60px #0004}
+.modalbox input{width:100%;padding:14px;border:1px solid #ddd;border-radius:10px;margin:12px 0;font-size:16px}.status{display:none;margin-top:12px;color:#68717a;font-size:13px}
 @media(max-width:850px){.hero-in{grid-template-columns:1fr}.hero-img{height:330px}.profiles,.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){nav a{display:none}.profiles,.grid{grid-template-columns:1fr}.hero-img{height:300px}.trust{flex-direction:column;gap:7px}.actions{flex-wrap:wrap}}
 </style></head><body>
+
 <nav><div class="logo">TalkN<span>Me</span></div><div><a href="#people">Listeners</a><a href="#pricing">Pricing</a><a href="#how">How it works</a><a href="#reviews">Reviews</a><button class="dark" onclick="openModal()">Sign in</button></div></nav>
 
 <header class="hero"><div class="hero-in"><div>
@@ -39,53 +39,17 @@ section{padding:55px 5%;max-width:1300px;margin:auto}h2{font-size:34px;margin:0 
 
 <section id="people"><h2>Meet our listeners</h2><p class="lead">Choose someone based on personality, interests, conversation style and availability.</p><div class="profiles">
 
-<article class="card">
-<img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=92" alt="Sarah">
-<div class="body"><div class="name">Sarah <span>● AVAILABLE</span></div>
-<p>Warm, empathetic and easy to open up to.</p>
-<div class="tags"><b>Relationships</b><b>Dating</b></div>
-<div class="row"><strong>$2.00/min</strong><em>★ 4.9</em></div>
-<button onclick="openModal()">Talk to Sarah</button></div></article>
+<article class="card"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=92" alt="Sarah"><div class="body"><div class="name">Sarah <span>● AVAILABLE</span></div><p>Warm, empathetic and easy to open up to.</p><div class="tags"><b>Relationships</b><b>Dating</b></div><div class="row"><strong>$2.00/min</strong><em>★ 4.9</em></div><button onclick="openModal()">Talk to Sarah</button></div></article>
 
-<article class="card">
-<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=92" alt="Maya">
-<div class="body"><div class="name">Maya <span>● AVAILABLE</span></div>
-<p>Fun, upbeat and great for a relaxed conversation.</p>
-<div class="tags"><b>Friendly talk</b><b>Life</b></div>
-<div class="row"><strong>$1.75/min</strong><em>★ 4.8</em></div>
-<button onclick="openModal()">Talk to Maya</button></div></article>
+<article class="card"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=92" alt="Maya"><div class="body"><div class="name">Maya <span>● AVAILABLE</span></div><p>Fun, upbeat and great for a relaxed conversation.</p><div class="tags"><b>Friendly talk</b><b>Life</b></div><div class="row"><strong>$1.75/min</strong><em>★ 4.8</em></div><button onclick="openModal()">Talk to Maya</button></div></article>
 
-<article class="card">
-<img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=92" alt="Emma">
-<div class="body"><div class="name">Emma <span>● AVAILABLE</span></div>
-<p>Calm, caring and especially good for late-night talks.</p>
-<div class="tags"><b>Just talk</b><b>Late night</b></div>
-<div class="row"><strong>$2.25/min</strong><em>★ 5.0</em></div>
-<button onclick="openModal()">Talk to Emma</button></div></article>
+<article class="card"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=92" alt="Emma"><div class="body"><div class="name">Emma <span>● AVAILABLE</span></div><p>Calm, caring and especially good for late-night talks.</p><div class="tags"><b>Just talk</b><b>Late night</b></div><div class="row"><strong>$2.25/min</strong><em>★ 5.0</em></div><button onclick="openModal()">Talk to Emma</button></div></article>
 
-<article class="card">
-<img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=92" alt="Ava">
-<div class="body"><div class="name">Ava <span>● AVAILABLE</span></div>
-<p>Confident, thoughtful and good at offering another perspective.</p>
-<div class="tags"><b>Advice</b><b>Perspective</b></div>
-<div class="row"><strong>$2.50/min</strong><em>★ 4.9</em></div>
-<button onclick="openModal()">Talk to Ava</button></div></article>
+<article class="card"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=92" alt="Ava"><div class="body"><div class="name">Ava <span>● AVAILABLE</span></div><p>Confident, thoughtful and good at offering another perspective.</p><div class="tags"><b>Advice</b><b>Perspective</b></div><div class="row"><strong>$2.50/min</strong><em>★ 4.9</em></div><button onclick="openModal()">Talk to Ava</button></div></article>
 
-<article class="card">
-<img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=92" alt="Daniel">
-<div class="body"><div class="name">Daniel <span>● AVAILABLE</span></div>
-<p>Calm, thoughtful and a good listener when you need perspective.</p>
-<div class="tags"><b>Life advice</b><b>Perspective</b></div>
-<div class="row"><strong>$2.00/min</strong><em>★ 4.9</em></div>
-<button onclick="openModal()">Talk to Daniel</button></div></article>
+<article class="card"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=92" alt="Daniel"><div class="body"><div class="name">Daniel <span>● AVAILABLE</span></div><p>Calm, thoughtful and a good listener when you need perspective.</p><div class="tags"><b>Life advice</b><b>Perspective</b></div><div class="row"><strong>$2.00/min</strong><em>★ 4.9</em></div><button onclick="openModal()">Talk to Daniel</button></div></article>
 
-<article class="card">
-<img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=92" alt="Chris">
-<div class="body"><div class="name">Chris <span>● AVAILABLE</span></div>
-<p>Easygoing, friendly and great for casual conversation.</p>
-<div class="tags"><b>Friendly talk</b><b>Travel</b></div>
-<div class="row"><strong>$1.75/min</strong><em>★ 4.8</em></div>
-<button onclick="openModal()">Talk to Chris</button></div></article>
+<article class="card"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=92" alt="Chris"><div class="body"><div class="name">Chris <span>● AVAILABLE</span></div><p>Easygoing, friendly and great for casual conversation.</p><div class="tags"><b>Friendly talk</b><b>Travel</b></div><div class="row"><strong>$1.75/min</strong><em>★ 4.8</em></div><button onclick="openModal()">Talk to Chris</button></div></article>
 
 </div></section>
 
@@ -95,9 +59,6 @@ section{padding:55px 5%;max-width:1300px;margin:auto}h2{font-size:34px;margin:0 
 <div class="box"><h3>💬 Casual Conversation</h3><p>Friendly, relaxed conversation about your day, interests or anything on your mind.</p><div class="price">$1.75 / min</div></div>
 <div class="box"><h3>❤️ Relationship & Dating</h3><p>Talk through dating situations, relationship questions and difficult decisions.</p><div class="price">$2.00 / min</div></div>
 <div class="box"><h3>🧠 Life Advice & Perspective</h3><p>Get another person's perspective when thinking through a situation.</p><div class="price">$2.00 / min</div></div>
-<div class="box"><h3>🌙 Late-Night Talks</h3><p>Someone to talk to when it is late and you simply want company.</p><div class="price">$2.25 / min</div></div>
-<div class="box"><h3>💔 Breakup & Emotional Support</h3><p>A calm conversation after a breakup or during a difficult moment.</p><div class="price">$2.25 / min</div></div>
-<div class="box"><h3>💎 Premium Listener</h3><p>More experienced listeners with specialised conversation styles.</p><div class="price">$2.50 / min</div></div>
 </div></section>
 
 <section class="reviews" id="reviews">
@@ -112,7 +73,7 @@ section{padding:55px 5%;max-width:1300px;margin:auto}h2{font-size:34px;margin:0 
 <div class="center"><h2>Start with a simple hello.</h2><p class="lead">Choose someone, start talking and pay by the minute.</p></div>
 <div class="grid">
 <div class="box"><h3>1. Choose someone</h3><p>Browse profiles, personalities, interests and availability.</p></div>
-<div class="box"><h3>2. Start talking</h3><p>Connect through a private conversation.</p></div>
+<div class="box"><h3>2. Start talking</h3><p>Enter your email and continue to the secure call.</p></div>
 <div class="box"><h3>3. Pay as you talk</h3><p>No subscription. Pay based on time used.</p></div>
 </div></section>
 
@@ -120,14 +81,54 @@ section{padding:55px 5%;max-width:1300px;margin:auto}h2{font-size:34px;margin:0 
 
 <div class="modal" id="modal"><div class="modalbox">
 <button style="float:right;background:none;color:#17202a;font-size:22px;padding:0" onclick="closeModal()">×</button>
-<h3>TalkNMe</h3><p style="color:#68717a">Sign-up and calling will be connected here next.</p>
-<input placeholder="you@example.com">
-<button style="width:100%" onclick="closeModal()">Continue</button>
+<h3>Start your TalkNMe call</h3>
+<p style="color:#68717a">Enter your email to continue to the secure TalkNMe call.</p>
+<input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+<button id="continueBtn" style="width:100%" onclick="startCall()">Continue to call</button>
+<div class="status" id="status">Opening your secure call…</div>
 </div></div>
 
 <script>
-function openModal(){document.getElementById('modal').style.display='flex'}
-function closeModal(){document.getElementById('modal').style.display='none'}
-window.onclick=e=>{if(e.target.id==='modal')closeModal()}
+const DAILY_ROOM='https://talknme.daily.co/Talknme';
+
+function openModal(){
+document.getElementById('modal').style.display='flex';
+setTimeout(()=>document.getElementById('email').focus(),50)
+}
+
+function closeModal(){
+document.getElementById('modal').style.display='none'
+}
+
+function startCall(){
+const input=document.getElementById('email');
+const email=input.value.trim();
+
+if(!email||!input.checkValidity()){
+input.focus();
+input.reportValidity();
+return
+}
+
+localStorage.setItem('talknme_email',email);
+
+document.getElementById('continueBtn').disabled=true;
+document.getElementById('continueBtn').textContent='Opening call…';
+document.getElementById('status').style.display='block';
+
+setTimeout(()=>{
+window.location.href=DAILY_ROOM
+},250)
+}
+
+window.addEventListener('click',e=>{
+if(e.target.id==='modal')closeModal()
+});
+
+window.addEventListener('DOMContentLoaded',()=>{
+const saved=localStorage.getItem('talknme_email');
+if(saved)document.getElementById('email').value=saved
+});
 </script>
+
 </body></html>
