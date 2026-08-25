@@ -1,1 +1,2 @@
-const fs=require('fs');const file='index.html';let s=fs.readFileSync(file,'utf8');if(!s.includes('/chat-widget.js')){s=s.replace('</body>','<script src="/chat-widget.js"></script></body>');fs.writeFileSync(file,s);}console.log('TalkNMe general chat widget enabled.');
+const fs=require('fs');const path=require('path');
+const src=path.join(process.cwd(),'index.html');const out=path.join(process.cwd(),'public');fs.mkdirSync(out,{recursive:true});let s=fs.readFileSync(src,'utf8');if(!s.includes('/chat-widget.js'))s=s.replace('</body>','<script src="/chat-widget.js"></script></body>');fs.writeFileSync(path.join(out,'index.html'),s);fs.copyFileSync(path.join(process.cwd(),'chat-widget.js'),path.join(out,'chat-widget.js'));console.log('TalkNMe general chat widget enabled.');
