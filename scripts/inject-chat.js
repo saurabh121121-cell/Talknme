@@ -1,0 +1,1 @@
+const fs=require('fs');const file='index.html';let s=fs.readFileSync(file,'utf8');if(!s.includes('/chat-widget.js')){s=s.replace('</body>','<script src="/chat-widget.js"></script></body>');fs.writeFileSync(file,s);}console.log('TalkNMe general chat widget enabled.');
