@@ -59,6 +59,15 @@ const reviews=`<section class="reviews moments-section">
 </section>`;
 
 s=s.replace(/<section class="reviews">[\s\S]*?<\/section>/,reviews);
+
+const momentsStart=s.indexOf('<section class="reviews moments-section">');
+if(momentsStart!==-1){
+  const momentsEnd=s.indexOf('</section>',momentsStart)+10;
+  const moments=s.slice(momentsStart,momentsEnd);
+  s=s.slice(0,momentsStart)+s.slice(momentsEnd);
+  s=s.replace('<header class="hero">',moments+'<header class="hero">');
+}
+
 if(!s.includes('/chat-widget.js'))s=s.replace('</body>','<script src="/chat-widget.js"></script></body>');
 if(!s.includes('/queue.js'))s=s.replace('</body>','<script src="/queue.js"></script></body>');
 fs.writeFileSync(path.join(out,'index.html'),s);
