@@ -1,7 +1,7 @@
 (()=>{
 const SB_URL='https://aipwsddemomhicymqjmp.supabase.co';
 const SB_KEY='sb_publishable_gQiJEwyU9WNajNAFd9CGCQ_HrUqEYcO';
-async function rpc(name,body){const r=await fetch(`${SB_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error(await r.text());return r.json()}
+async function rpc(name,body){const r=await fetch(`${SB_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error(`Supabase ${r.status}: ${await r.text()}`);return r.json()}
 window.TalkNMeQueue={
  createRequest:email=>rpc('create_call_request',{p_customer_email:email}),
  status:(id,token)=>rpc('get_call_status',{p_request_id:id,p_access_token:token}),
