@@ -1,22 +1,14 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://aipwsddemomhicymqjmp.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_gQiJEwyU9WNajNAFd9CGCQ_HrUqEYcO';
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   const merchantOrderId = String((req.query && req.query.order_id) || '');
-  if (!merchantOrderId || !/^TNM-[A-Z0-9-]+$/i.test(merchantOrderId)) {
-    return res.status(400).json({ error: 'Invalid order_id' });
-  }
-  if (!SUPABASE_ANON_KEY) return res.status(500).json({ error: 'SUPABASE_ANON_KEY is not configured' });
-
+  if (!merchantOrderId || !/^TNM-[A-Z0-9-]+$/i.test(merchantOrderId)) return res.status(400).json({ error: 'Invalid order_id' });
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_payment_status`, {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_merchant_order_id: merchantOrderId }),
     });
     if (!r.ok) return res.status(502).json({ error: 'Unable to read payment status' });
