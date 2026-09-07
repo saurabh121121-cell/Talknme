@@ -74,7 +74,7 @@ module.exports = async (req, res) => {
     if (!plan) return res.status(400).json({ error: 'Invalid plan' });
 
     const merchantOrderId = `TNM-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    const currency = 'USD';
+    const currency = 'EUR';
     const returnUrl = new URL('/', BASE_URL);
     returnUrl.searchParams.set('payment_order', merchantOrderId);
 
