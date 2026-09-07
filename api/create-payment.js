@@ -10,8 +10,9 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_gQiJE
 const MARTPAY_API_KEY = process.env.MARTPAY_API_KEY;
 const BASE_URL = process.env.TALKNME_BASE_URL || 'https://talknme.com';
 
-// MartPay's own cURL example uses HTTP for this API host.
-const MARTPAY_URL = 'http://api.martpay.net/api/mc/payment';
+// Use the secure API endpoint. MartPay's reference example shows HTTP, but
+// production payment credentials should not be sent over plain HTTP.
+const MARTPAY_URL = 'https://api.martpay.net/api/mc/payment';
 
 async function supabaseRpc(name, body) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
@@ -88,7 +89,7 @@ module.exports = async (req, res) => {
 
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
-      payment_amount: Number(plan.amount),
+      payment_amount: plan.amount,
       payment_currency: currency,
       return_url: returnUrl.toString(),
     };
