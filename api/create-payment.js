@@ -87,15 +87,16 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
-    const customerEmail = String(body.customer_email || process.env.MARTPAY_CUSTOMER_EMAIL || 'payments@talknme.com').trim();
-
+    // MartPay expects these exact field names for the payment-creation request.
+    // Do not put the API key in this payload or in logs.
     const paymentPayload = {
-      merchant_order_id: merchantOrderId,
-      payment_amount: plan.amount,
-      payment_currency: currency,
-      return_url: returnUrl.toString(),
-      customer_email: customerEmail,
+      order_id: merchantOrderId,
+      amount: Number(plan.amount),
+      currency,
+      redirect_url: returnUrl.toString(),
     };
+
+    console.log('MartPay POST request payload', paymentPayload);
 
     const paymentResponse = await fetch(MARTPAY_URL, {
       method: 'POST',
@@ -112,7 +113,9 @@ module.exports = async (req, res) => {
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
     if (!paymentResponse.ok) {
-      console.error('MartPay create payment failed', paymentResponse.status, data);
+      console.error('MartPay create payment failed', paymentResponse.status, data, {
+        sent_payload: paymentPayload,
+      });
       return res.status(502).json({
         error: 'MartPay could not create the payment link',
         martpay_status: paymentResponse.status,
