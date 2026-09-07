@@ -43,6 +43,17 @@ function findPaymentUrl(value) {
   return walk(value);
 }
 
+function safeMartPayError(data, text) {
+  if (data && typeof data === 'object') {
+    const out = {};
+    for (const key of ['code', 'status', 'error', 'message', 'msg', 'detail', 'description']) {
+      if (typeof data[key] === 'string' || typeof data[key] === 'number') out[key] = data[key];
+    }
+    if (Object.keys(out).length) return out;
+  }
+  return { message: String(text || 'Unknown MartPay error').slice(0, 500) };
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!MARTPAY_API_KEY) return res.status(500).json({ error: 'MartPay API key is not configured' });
@@ -87,7 +98,11 @@ module.exports = async (req, res) => {
 
     if (!paymentResponse.ok) {
       console.error('MartPay create payment failed', paymentResponse.status, data);
-      return res.status(502).json({ error: 'MartPay could not create the payment link' });
+      return res.status(502).json({
+        error: 'MartPay could not create the payment link',
+        martpay_status: paymentResponse.status,
+        martpay_error: safeMartPayError(data, text),
+      });
     }
 
     const paymentUrl = findPaymentUrl(data);
