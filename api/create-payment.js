@@ -84,10 +84,11 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
+    // MartPay API Reference requires all three of these body fields as strings.
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
-      payment_amount: Number(plan.amount),
-      currency,
+      payment_amount: plan.amount,
+      payment_currency: currency,
       return_url: returnUrl.toString(),
     };
 
