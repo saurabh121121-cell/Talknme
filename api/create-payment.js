@@ -10,8 +10,6 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_gQiJE
 const MARTPAY_API_KEY = process.env.MARTPAY_API_KEY;
 const BASE_URL = process.env.TALKNME_BASE_URL || 'https://talknme.com';
 
-// Use the secure API endpoint. MartPay's reference example shows HTTP, but
-// production payment credentials should not be sent over plain HTTP.
 const MARTPAY_URL = 'https://api.martpay.net/api/mc/payment';
 
 async function supabaseRpc(name, body) {
@@ -87,11 +85,17 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
+    // MartPay's request schema lists customer_email as a required field.
+    // The current TalkNMe flow intentionally has no customer account form, so
+    // use a valid merchant-controlled address until we add customer email capture.
+    const customerEmail = String(body.customer_email || process.env.MARTPAY_CUSTOMER_EMAIL || 'payments@talknme.com').trim();
+
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
       payment_amount: plan.amount,
       payment_currency: currency,
       return_url: returnUrl.toString(),
+      customer_email: customerEmail,
     };
 
     const paymentResponse = await fetch(MARTPAY_URL, {
