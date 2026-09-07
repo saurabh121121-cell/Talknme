@@ -4,7 +4,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_gQiJE
 module.exports = async (req, res) => {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   const merchantOrderId = String((req.query && req.query.order_id) || '');
-  if (!merchantOrderId || !/^TNM-[A-Z0-9-]+$/i.test(merchantOrderId)) return res.status(400).json({ error: 'Invalid order_id' });
+  if (!merchantOrderId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(merchantOrderId)) return res.status(400).json({ error: 'Invalid order_id' });
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_payment_status`, {
       method: 'POST',
