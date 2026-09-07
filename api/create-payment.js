@@ -85,14 +85,12 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
-    // MartPay's request schema lists customer_email as a required field.
-    // The current TalkNMe flow intentionally has no customer account form, so
-    // use a valid merchant-controlled address until we add customer email capture.
     const customerEmail = String(body.customer_email || process.env.MARTPAY_CUSTOMER_EMAIL || 'payments@talknme.com').trim();
 
+    // Match MartPay's published example: numeric payment amount, EUR, HTTPS.
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
-      payment_amount: plan.amount,
+      payment_amount: Number(plan.amount),
       payment_currency: currency,
       return_url: returnUrl.toString(),
       customer_email: customerEmail,
