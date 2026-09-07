@@ -1,5 +1,5 @@
 const PLANS = Object.freeze({
-  '10': { minutes: 10, amount: '17.50' },
+  '10': { minutes: 10, amount: '4.00' },
   '20': { minutes: 20, amount: '32.00' },
   '30': { minutes: 30, amount: '45.00' },
   '60': { minutes: 60, amount: '84.00' },
@@ -72,7 +72,6 @@ module.exports = async (req, res) => {
     const plan = PLANS[planId];
     if (!plan) return res.status(400).json({ error: 'Invalid plan' });
 
-    // MartPay's documented example uses a UUID-style merchant order ID.
     const merchantOrderId = typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2, 14)}`;
@@ -90,7 +89,6 @@ module.exports = async (req, res) => {
 
     const customerEmail = String(body.customer_email || process.env.MARTPAY_CUSTOMER_EMAIL || 'payments@talknme.com').trim();
 
-    // Match MartPay's published example: string payment amount, EUR, HTTPS.
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
       payment_amount: plan.amount,
