@@ -1,5 +1,5 @@
 const PLANS = Object.freeze({
-  '10': { minutes: 10, amount: '4.00' },
+  '10': { minutes: 10, amount: '6.00' },
   '20': { minutes: 20, amount: '32.00' },
   '30': { minutes: 30, amount: '45.00' },
   '60': { minutes: 60, amount: '84.00' },
@@ -96,14 +96,6 @@ module.exports = async (req, res) => {
       return_url: returnUrl.toString(),
       customer_email: customerEmail,
     };
-
-    // MartPay's integration-testing flow uses a test bank/institution.
-    // Keep this limited to the temporary 1–5 EUR test amount; production plans
-    // must not be locked to a specific institution.
-    if (Number(plan.amount) >= 1 && Number(plan.amount) <= 5) {
-      paymentPayload.institution_id = 'revolut_eu';
-      paymentPayload.institution_country_code = 'DE';
-    }
 
     const paymentResponse = await fetch(MARTPAY_URL, {
       method: 'POST',
