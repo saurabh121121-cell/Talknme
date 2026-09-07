@@ -1,6 +1,13 @@
 (()=>{
 const SB_URL='https://aipwsddemomhicymqjmp.supabase.co';
-const SB_KEY='sb_publishable_gQiJEwyU9WNajNAFd9CGCQ_HrUqEYcO';
+const SB_KEY=window.TALKNME_SUPABASE_KEY||'sb_publishable_gQiJEwyU9WNajNAFd9CGCQ_HrUqEYcO';
+const PLANS={
+ '10':{minutes:10,amount:'17.50'},
+ '20':{minutes:20,amount:'32.00'},
+ '30':{minutes:30,amount:'45.00'},
+ '60':{minutes:60,amount:'84.00'}
+};
+let selectedPlanId='10';
 async function rpc(name,body){const r=await fetch(`${SB_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error(`Supabase ${r.status}: ${await r.text()}`);return r.json()}
 window.TalkNMeQueue={
  createRequest:()=>rpc('create_call_request',{}),
@@ -11,20 +18,76 @@ window.TalkNMeQueue={
  release:(id,l)=>rpc('release_call',{p_request_id:id,p_listener_id:l}),
  finish:(id,l)=>rpc('finish_call',{p_request_id:id,p_listener_id:l})
 };
-if(document.getElementById('modal')){
- const originalStatus=document.getElementById('status');
- window.startCall=async function(){
-  const btn=document.getElementById('continueBtn');
-  btn.disabled=true;btn.textContent='Finding a listener…';originalStatus.style.display='block';originalStatus.textContent='Finding an available listener…';
+
+function setStatus(text,show=true){const el=document.getElementById('status');if(el){el.style.display=show?'block':'none';el.textContent=text}}
+function setButton(text,disabled){const btn=document.getElementById('continueBtn');if(btn){btn.textContent=text;btn.disabled=!!disabled}}
+function showModalPlan(){const p=PLANS[selectedPlanId];const title=document.querySelector('#modal h3');if(title)title.textContent=`Start your ${p.minutes}-minute conversation`;const secure=document.querySelector('#modal .secure');if(secure)secure.innerHTML=`🔒 <strong>Secure payment</strong><br>$${p.amount} USD for ${p.minutes} minutes. You’ll be redirected to MartPay to complete payment.`}
+
+function beginQueueAfterPayment(orderId){
+ localStorage.setItem('talknme_paid_order',orderId);
+ const started=Date.now();
+ setButton('Checking payment…',true);setStatus('Payment received. Confirming it securely…');
+ const poll=async()=>{
   try{
-   const rows=await TalkNMeQueue.createRequest();const row=Array.isArray(rows)?rows[0]:rows;
-   if(!row||!row.request_id||!row.access_token)throw new Error('Invalid call request response');
-   localStorage.setItem('talknme_request_id',row.request_id);localStorage.setItem('talknme_request_token',row.access_token);
-   originalStatus.textContent='You’re in the queue. We’ll connect you as soon as a listener is available.';
-   const started=Date.now();
-   const poll=async()=>{try{const result=await TalkNMeQueue.status(row.request_id,row.access_token);const s=Array.isArray(result)?result[0]:result;if(s&&s.status==='assigned'&&s.room_name){originalStatus.textContent=`${s.listener_name||'Your listener'} is ready. Opening your private call…`;clearInterval(timer);setTimeout(()=>{window.location.href=`https://talknme.daily.co/${encodeURIComponent(s.room_name)}`},400);return}if(Date.now()-started>15*60*1000){clearInterval(timer);btn.disabled=false;btn.textContent='Try again';originalStatus.textContent='No listener became available. Please try again.'}}catch(e){console.warn(e)}};
-   const timer=setInterval(poll,2000);poll();
-  }catch(e){btn.disabled=false;btn.textContent='Start conversation';originalStatus.textContent='We could not place your request. Please try again.';console.error(e)}
+   const r=await fetch(`/api/payment-status?order_id=${encodeURIComponent(orderId)}`);
+   if(!r.ok)throw new Error('Payment status unavailable');
+   const s=await r.json();
+   if(s.status==='COMPLETED'){
+    clearInterval(timer);
+    history.replaceState({},document.title,window.location.pathname+window.location.hash);
+    setStatus('Payment confirmed. Finding an available listener…');
+    await createQueueRequest();
+    return;
+   }
+   if(s.status==='CANCELED'){
+    clearInterval(timer);setButton('Try again',false);setStatus('The payment was canceled. You have not been placed in the call queue.');return;
+   }
+   if(Date.now()-started>10*60*1000){clearInterval(timer);setButton('Check again',false);setStatus('Payment is still being confirmed. Please wait a little and try again.');}
+  }catch(e){console.warn(e)}
  };
+ const timer=setInterval(poll,5000);poll();
+}
+
+async function createQueueRequest(){
+ try{
+  const rows=await TalkNMeQueue.createRequest();const row=Array.isArray(rows)?rows[0]:rows;
+  if(!row||!row.request_id||!row.access_token)throw new Error('Invalid call request response');
+  localStorage.setItem('talknme_request_id',row.request_id);localStorage.setItem('talknme_request_token',row.access_token);
+  setStatus('You’re in the queue. We’ll connect you as soon as a listener is available.');
+  setButton('Finding a listener…',true);
+  const started=Date.now();
+  const poll=async()=>{try{const result=await TalkNMeQueue.status(row.request_id,row.access_token);const s=Array.isArray(result)?result[0]:result;if(s&&s.status==='assigned'&&s.room_name){setStatus(`${s.listener_name||'Your listener'} is ready. Opening your private call…`);clearInterval(timer);setTimeout(()=>{window.location.href=`https://talknme.daily.co/${encodeURIComponent(s.room_name)}`},400);return}if(Date.now()-started>15*60*1000){clearInterval(timer);setButton('Try again',false);setStatus('No listener became available. Please try again.')}}catch(e){console.warn(e)}};
+  const timer=setInterval(poll,2000);poll();
+ }catch(e){setButton('Start conversation',false);setStatus('We could not place your request. Please try again.');console.error(e)}
+}
+
+async function startPaidConversation(){
+ const plan=PLANS[selectedPlanId]||PLANS['10'];
+ setButton('Opening secure payment…',true);setStatus(`Creating your ${plan.minutes}-minute payment…`);
+ try{
+  const r=await fetch('/api/create-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan_id:selectedPlanId})});
+  const data=await r.json();
+  if(!r.ok||!data.payment_url)throw new Error(data.error||'Payment link unavailable');
+  localStorage.setItem('talknme_pending_order',data.merchant_order_id);
+  window.location.href=data.payment_url;
+ }catch(e){setButton('Continue to payment',false);setStatus('We could not start the payment. Please try again.');console.error(e)}
+}
+
+if(document.getElementById('modal')){
+ document.querySelectorAll('.price-card button').forEach(btn=>btn.addEventListener('click',()=>{const m=btn.closest('.price-card')?.querySelector('.minutes')?.textContent||'';const match=m.match(/(10|20|30|60)/);if(match)selectedPlanId=match[1];showModalPlan()}));
+ const originalOpen=window.openModal;
+ window.openModal=function(){showModalPlan();if(typeof originalOpen==='function')originalOpen()};
+ window.startCall=startPaidConversation;
+ const orderId=new URLSearchParams(window.location.search).get('payment_order');
+ if(orderId){
+  window.openModal();
+  beginQueueAfterPayment(orderId);
+ } else {
+  const pending=localStorage.getItem('talknme_pending_order');
+  if(pending){
+   // A previous checkout may have returned without a query string; keep the order available for manual recovery.
+   console.info('Pending TalkNMe payment order:',pending);
+  }
+ }
 }
 })();
