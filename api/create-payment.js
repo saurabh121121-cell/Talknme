@@ -45,13 +45,20 @@ function findPaymentUrl(value) {
 
 function safeMartPayError(data, text) {
   if (data && typeof data === 'object') {
-    const out = {};
-    for (const key of ['code', 'status', 'error', 'message', 'msg', 'detail', 'description']) {
-      if (typeof data[key] === 'string' || typeof data[key] === 'number') out[key] = data[key];
-    }
-    if (Object.keys(out).length) return out;
+    const sanitize = (value, depth = 0) => {
+      if (depth > 4) return '[truncated]';
+      if (Array.isArray(value)) return value.slice(0, 20).map(v => sanitize(v, depth + 1));
+      if (!value || typeof value !== 'object') return value;
+      const out = {};
+      for (const [key, value2] of Object.entries(value)) {
+        if (/api.?key|secret|token|authorization|password/i.test(key)) continue;
+        out[key] = sanitize(value2, depth + 1);
+      }
+      return out;
+    };
+    return sanitize(data);
   }
-  return { message: String(text || 'Unknown MartPay error').slice(0, 500) };
+  return { message: String(text || 'Unknown MartPay error').slice(0, 1000) };
 }
 
 module.exports = async (req, res) => {
@@ -77,6 +84,13 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
+    const paymentPayload = {
+      merchant_order_id: merchantOrderId,
+      payment_amount: Number(plan.amount),
+      currency,
+      return_url: returnUrl.toString(),
+    };
+
     const paymentResponse = await fetch(MARTPAY_URL, {
       method: 'POST',
       headers: {
@@ -84,12 +98,7 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({
-        merchant_order_id: merchantOrderId,
-        payment_amount: Number(plan.amount),
-        currency,
-        return_url: returnUrl.toString(),
-      }),
+      body: JSON.stringify(paymentPayload),
     });
 
     const text = await paymentResponse.text();
@@ -102,6 +111,7 @@ module.exports = async (req, res) => {
         error: 'MartPay could not create the payment link',
         martpay_status: paymentResponse.status,
         martpay_error: safeMartPayError(data, text),
+        sent_fields: Object.keys(paymentPayload),
       });
     }
 
