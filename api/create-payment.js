@@ -6,13 +6,12 @@ const PLANS = Object.freeze({
 });
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://aipwsddemomhicymqjmp.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_gQiJEwyU9WNajNAFd9CGCQ_HrUqEYcO';
 const MARTPAY_API_KEY = process.env.MARTPAY_API_KEY;
 const BASE_URL = process.env.TALKNME_BASE_URL || 'https://talknme.com';
 const MARTPAY_URL = 'https://api.martpay.net/api/mc/payment';
 
 async function supabaseRpc(name, body) {
-  if (!SUPABASE_ANON_KEY) throw new Error('SUPABASE_ANON_KEY is not configured');
   const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
     method: 'POST',
     headers: {
@@ -67,13 +66,6 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
-    const martpayPayload = {
-      merchant_order_id: merchantOrderId,
-      payment_amount: plan.amount,
-      payment_currency: currency,
-      return_url: returnUrl.toString(),
-    };
-
     const paymentResponse = await fetch(MARTPAY_URL, {
       method: 'POST',
       headers: {
@@ -81,7 +73,12 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify(martpayPayload),
+      body: JSON.stringify({
+        merchant_order_id: merchantOrderId,
+        payment_amount: plan.amount,
+        payment_currency: currency,
+        return_url: returnUrl.toString(),
+      }),
     });
 
     const text = await paymentResponse.text();
@@ -99,13 +96,7 @@ module.exports = async (req, res) => {
       return res.status(502).json({ error: 'MartPay returned no payment URL' });
     }
 
-    return res.status(200).json({
-      merchant_order_id: merchantOrderId,
-      payment_url: paymentUrl,
-      minutes: plan.minutes,
-      amount: plan.amount,
-      currency,
-    });
+    return res.status(200).json({ merchant_order_id: merchantOrderId, payment_url: paymentUrl, minutes: plan.minutes, amount: plan.amount, currency });
   } catch (error) {
     console.error('create-payment error', error);
     return res.status(500).json({ error: 'Unable to start payment' });
