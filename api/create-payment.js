@@ -1,0 +1,113 @@
+const PLANS = Object.freeze({
+  '10': { minutes: 10, amount: '17.50' },
+  '20': { minutes: 20, amount: '32.00' },
+  '30': { minutes: 30, amount: '45.00' },
+  '60': { minutes: 60, amount: '84.00' },
+});
+
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://aipwsddemomhicymqjmp.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const MARTPAY_API_KEY = process.env.MARTPAY_API_KEY;
+const BASE_URL = process.env.TALKNME_BASE_URL || 'https://talknme.com';
+const MARTPAY_URL = 'https://api.martpay.net/api/mc/payment';
+
+async function supabaseRpc(name, body) {
+  if (!SUPABASE_ANON_KEY) throw new Error('SUPABASE_ANON_KEY is not configured');
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`Supabase ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+function findPaymentUrl(value) {
+  const preferred = new Set(['payment_url', 'paymentUrl', 'checkout_url', 'checkoutUrl', 'redirect_url', 'redirectUrl', 'payment_link', 'paymentLink', 'url', 'link']);
+  const seen = new Set();
+  function walk(node) {
+    if (!node || typeof node !== 'object' || seen.has(node)) return null;
+    seen.add(node);
+    for (const key of preferred) {
+      if (typeof node[key] === 'string' && /^https?:\/\//i.test(node[key])) return node[key];
+    }
+    for (const key of Object.keys(node)) {
+      const hit = walk(node[key]);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  return walk(value);
+}
+
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!MARTPAY_API_KEY) return res.status(500).json({ error: 'MartPay API key is not configured' });
+
+  try {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const planId = String(body.plan_id || '');
+    const plan = PLANS[planId];
+    if (!plan) return res.status(400).json({ error: 'Invalid plan' });
+
+    const merchantOrderId = `TNM-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const currency = 'USD';
+    const returnUrl = new URL('/', BASE_URL);
+    returnUrl.searchParams.set('payment_order', merchantOrderId);
+
+    await supabaseRpc('create_payment_order', {
+      p_merchant_order_id: merchantOrderId,
+      p_plan_id: planId,
+      p_minutes: plan.minutes,
+      p_amount: Number(plan.amount),
+      p_currency: currency,
+    });
+
+    const martpayPayload = {
+      merchant_order_id: merchantOrderId,
+      payment_amount: plan.amount,
+      payment_currency: currency,
+      return_url: returnUrl.toString(),
+    };
+
+    const paymentResponse = await fetch(MARTPAY_URL, {
+      method: 'POST',
+      headers: {
+        'x-api-key': MARTPAY_API_KEY,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(martpayPayload),
+    });
+
+    const text = await paymentResponse.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    if (!paymentResponse.ok) {
+      console.error('MartPay create payment failed', paymentResponse.status, data);
+      return res.status(502).json({ error: 'MartPay could not create the payment link' });
+    }
+
+    const paymentUrl = findPaymentUrl(data);
+    if (!paymentUrl) {
+      console.error('MartPay response did not contain a recognizable payment URL', data);
+      return res.status(502).json({ error: 'MartPay returned no payment URL' });
+    }
+
+    return res.status(200).json({
+      merchant_order_id: merchantOrderId,
+      payment_url: paymentUrl,
+      minutes: plan.minutes,
+      amount: plan.amount,
+      currency,
+    });
+  } catch (error) {
+    console.error('create-payment error', error);
+    return res.status(500).json({ error: 'Unable to start payment' });
+  }
+};
