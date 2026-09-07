@@ -87,10 +87,10 @@ module.exports = async (req, res) => {
 
     const customerEmail = String(body.customer_email || process.env.MARTPAY_CUSTOMER_EMAIL || 'payments@talknme.com').trim();
 
-    // Match MartPay's published example: numeric payment amount, EUR, HTTPS.
+    // MartPay documents payment_amount as a string; keep the exact documented type.
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
-      payment_amount: Number(plan.amount),
+      payment_amount: plan.amount,
       payment_currency: currency,
       return_url: returnUrl.toString(),
       customer_email: customerEmail,
