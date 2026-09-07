@@ -97,6 +97,14 @@ module.exports = async (req, res) => {
       customer_email: customerEmail,
     };
 
+    // MartPay's integration-testing flow uses a test bank/institution.
+    // Keep this limited to the temporary 1–5 EUR test amount; production plans
+    // must not be locked to a specific institution.
+    if (Number(plan.amount) >= 1 && Number(plan.amount) <= 5) {
+      paymentPayload.institution_id = 'revolut_eu';
+      paymentPayload.institution_country_code = 'DE';
+    }
+
     const paymentResponse = await fetch(MARTPAY_URL, {
       method: 'POST',
       headers: {
