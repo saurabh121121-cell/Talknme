@@ -27,7 +27,7 @@ async function supabaseRpc(name, body) {
 }
 
 function findPaymentUrl(value) {
-  const preferred = new Set(['payment_url', 'paymentUrl', 'checkout_url', 'checkoutUrl', 'redirect_url', 'redirectUrl', 'payment_link', 'paymentLink', 'url', 'link']);
+  const preferred = new Set(['pay_url', 'payUrl', 'payment_url', 'paymentUrl', 'checkout_url', 'checkoutUrl', 'redirect_url', 'redirectUrl', 'payment_link', 'paymentLink', 'url', 'link']);
   const seen = new Set();
   function walk(node) {
     if (!node || typeof node !== 'object' || seen.has(node)) return null;
@@ -87,8 +87,6 @@ module.exports = async (req, res) => {
       p_currency: currency,
     });
 
-    // MartPay expects these exact field names for the payment-creation request.
-    // Do not put the API key in this payload or in logs.
     const paymentPayload = {
       order_id: merchantOrderId,
       amount: Number(plan.amount),
@@ -124,6 +122,7 @@ module.exports = async (req, res) => {
       });
     }
 
+    console.log('MartPay create payment response', data);
     const paymentUrl = findPaymentUrl(data);
     if (!paymentUrl) {
       console.error('MartPay response did not contain a recognizable payment URL', data);
