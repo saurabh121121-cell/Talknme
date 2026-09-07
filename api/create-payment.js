@@ -86,8 +86,8 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         merchant_order_id: merchantOrderId,
-        payment_amount: plan.amount,
-        payment_currency: currency,
+        payment_amount: Number(plan.amount),
+        currency,
         return_url: returnUrl.toString(),
       }),
     });
