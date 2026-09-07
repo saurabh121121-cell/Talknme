@@ -2,7 +2,7 @@
 const SB_URL='https://aipwsddemomhicymqjmp.supabase.co';
 const SB_KEY=window.TALKNME_SUPABASE_KEY||'sb_publishable_gQiJEwyU9WNajNAFd9CGCQ_HrUqEYcO';
 const PLANS={
- '10':{minutes:10,amount:'4.00'},
+ '10':{minutes:10,amount:'6.00'},
  '20':{minutes:20,amount:'32.00'},
  '30':{minutes:30,amount:'45.00'},
  '60':{minutes:60,amount:'84.00'}
