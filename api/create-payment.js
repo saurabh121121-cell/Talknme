@@ -72,7 +72,10 @@ module.exports = async (req, res) => {
     const plan = PLANS[planId];
     if (!plan) return res.status(400).json({ error: 'Invalid plan' });
 
-    const merchantOrderId = `TNM-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    // MartPay's documented example uses a UUID-style merchant order ID.
+    const merchantOrderId = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 14)}`;
     const currency = 'EUR';
     const returnUrl = new URL('/', BASE_URL);
     returnUrl.searchParams.set('payment_order', merchantOrderId);
@@ -87,7 +90,7 @@ module.exports = async (req, res) => {
 
     const customerEmail = String(body.customer_email || process.env.MARTPAY_CUSTOMER_EMAIL || 'payments@talknme.com').trim();
 
-    // MartPay documents payment_amount as a string; keep the exact documented type.
+    // Match MartPay's published example: string payment amount, EUR, HTTPS.
     const paymentPayload = {
       merchant_order_id: merchantOrderId,
       payment_amount: plan.amount,
